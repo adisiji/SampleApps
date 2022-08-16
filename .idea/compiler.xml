@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="1.8">
+      <module name="Apps.app" target="11" />
+      <module name="Apps.core-common" target="11" />
+      <module name="Apps.core-designsystem" target="11" />
+      <module name="Apps.core-model" target="11" />
+      <module name="Apps.core-model.main" target="11" />
+      <module name="Apps.core-model.test" target="11" />
+      <module name="Apps.core-navigation" target="11" />
+      <module name="Apps.core-testing" target="11" />
+      <module name="Apps.core-ui" target="11" />
+      <module name="Apps.feature-list" target="11" />
+      <module name="HotelApp.app" target="11" />
+      <module name="HotelApp.core-common" target="11" />
+      <module name="HotelApp.core-designsystem" target="11" />
+      <module name="HotelApp.core-model" target="11" />
+      <module name="HotelApp.core-model.main" target="11" />
+      <module name="HotelApp.core-model.test" target="11" />
+      <module name="HotelApp.core-navigation" target="11" />
+      <module name="HotelApp.core-testing" target="11" />
+      <module name="HotelApp.core-ui" target="11" />
+      <module name="HotelApp.feature-list" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

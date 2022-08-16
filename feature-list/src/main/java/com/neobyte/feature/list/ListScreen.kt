@@ -1,0 +1,490 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.neobyte.feature.list
+
+import android.app.Activity
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumedWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.trace
+import androidx.core.view.doOnPreDraw
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import kotlin.math.floor
+
+@OptIn(ExperimentalLifecycleComposeApi::class)
+@Composable
+fun ForYouRoute(
+    windowSizeClass: WindowSizeClass,
+    modifier: Modifier = Modifier,
+//    viewModel: ForYouViewModel = hiltViewModel()
+) {
+//    val interestsSelectionState by viewModel.interestsSelectionState.collectAsStateWithLifecycle()
+//    val feedState by viewModel.feedState.collectAsStateWithLifecycle()
+    /*ForYouScreen(
+        windowSizeClass = windowSizeClass,
+        modifier = modifier,
+        interestsSelectionState = interestsSelectionState,
+        feedState = feedState,
+        onTopicCheckedChanged = viewModel::updateTopicSelection,
+        onAuthorCheckedChanged = viewModel::updateAuthorSelection,
+        saveFollowedTopics = viewModel::saveFollowedInterests,
+        onNewsResourcesCheckedChanged = viewModel::updateNewsResourceSaved
+    )*/
+}
+
+/*@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun ForYouScreen(
+    windowSizeClass: WindowSizeClass,
+    interestsSelectionState: ForYouInterestsSelectionUiState,
+    feedState: NewsFeedUiState,
+    onTopicCheckedChanged: (String, Boolean) -> Unit,
+    onAuthorCheckedChanged: (String, Boolean) -> Unit,
+    saveFollowedTopics: () -> Unit,
+    onNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    NiaGradientBackground {
+        Scaffold(
+            topBar = {
+                NiaTopAppBar(
+                    titleRes = R.string.top_app_bar_title,
+                    navigationIcon = NiaIcons.Search,
+                    navigationIconContentDescription = stringResource(
+                        id = R.string.for_you_top_app_bar_action_search
+                    ),
+                    actionIcon = NiaIcons.AccountCircle,
+                    actionIconContentDescription = stringResource(
+                        id = R.string.for_you_top_app_bar_action_my_account
+                    ),
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Transparent
+                    ),
+                    modifier = Modifier.windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
+                    )
+                )
+            },
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            // TODO: Replace with `LazyVerticalGrid` when blocking bugs are fixed:
+            //       https://issuetracker.google.com/issues/230514914
+            //       https://issuetracker.google.com/issues/231320714
+            BoxWithConstraints(
+                modifier = modifier
+                    .padding(innerPadding)
+                    .consumedWindowInsets(innerPadding)
+            ) {
+                val numberOfColumns = when (windowSizeClass.widthSizeClass) {
+                    WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium -> 1
+                    else -> floor(maxWidth / 300.dp).toInt().coerceAtLeast(1)
+                }
+
+                // Workaround to call Activity.reportFullyDrawn from Jetpack Compose.
+                // This code should be called when the UI is ready for use
+                // and relates to Time To Full Display.
+                val interestsLoaded =
+                    interestsSelectionState !is ForYouInterestsSelectionUiState.Loading
+                val feedLoaded = feedState !is NewsFeedUiState.Loading
+
+                if (interestsLoaded && feedLoaded) {
+                    val localView = LocalView.current
+                    // We use Unit to call reportFullyDrawn only on the first recomposition,
+                    // however it will be called again if this composable goes out of scope.
+                    // Activity.reportFullyDrawn() has its own check for this
+                    // and is safe to call multiple times though.
+                    LaunchedEffect(Unit) {
+                        // We're leveraging the fact, that the current view is directly set as content of Activity.
+                        val activity = localView.context as? Activity ?: return@LaunchedEffect
+                        // To be sure not to call in the middle of a frame draw.
+                        localView.doOnPreDraw { activity.reportFullyDrawn() }
+                    }
+                }
+
+                val tag = "forYou:feed"
+
+                val lazyListState = rememberLazyListState()
+                TrackScrollJank(scrollableState = lazyListState, stateName = tag)
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag(tag),
+                    state = lazyListState,
+                ) {
+                    InterestsSelection(
+                        interestsSelectionState = interestsSelectionState,
+                        showLoadingUIIfLoading = true,
+                        onAuthorCheckedChanged = onAuthorCheckedChanged,
+                        onTopicCheckedChanged = onTopicCheckedChanged,
+                        saveFollowedTopics = saveFollowedTopics
+                    )
+
+                    NewsFeed(
+                        feedState = feedState,
+                        // Avoid showing a second loading wheel if we already are for the interests
+                        // selection
+                        showLoadingUIIfLoading =
+                        interestsSelectionState !is ForYouInterestsSelectionUiState.Loading,
+                        numberOfColumns = numberOfColumns,
+                        onNewsResourcesCheckedChanged = onNewsResourcesCheckedChanged,
+                        loadingContentDescription = R.string.for_you_loading
+                    )
+
+                    item {
+                        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
+                    }
+                }
+            }
+        }
+    }
+}
+
+*//**
+ * An extension on [LazyListScope] defining the interests selection portion of the for you screen.
+ * Depending on the [interestsSelectionState], this might emit no items.
+ *
+ * @param showLoadingUIIfLoading if true, show a visual indication of loading if the
+ * [interestsSelectionState] is loading. This is controllable to permit du-duplicating loading
+ * states.
+ *//*
+private fun LazyListScope.InterestsSelection(
+    interestsSelectionState: ForYouInterestsSelectionUiState,
+    showLoadingUIIfLoading: Boolean,
+    onAuthorCheckedChanged: (String, Boolean) -> Unit,
+    onTopicCheckedChanged: (String, Boolean) -> Unit,
+    saveFollowedTopics: () -> Unit
+) {
+    when (interestsSelectionState) {
+        ForYouInterestsSelectionUiState.Loading -> {
+            if (showLoadingUIIfLoading) {
+                item {
+                    NiaLoadingWheel(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize()
+                            .testTag("forYou:loading"),
+                        contentDesc = stringResource(id = R.string.for_you_loading),
+                    )
+                }
+            }
+        }
+        ForYouInterestsSelectionUiState.NoInterestsSelection -> Unit
+        is ForYouInterestsSelectionUiState.WithInterestsSelection -> {
+            item {
+                Text(
+                    text = stringResource(R.string.onboarding_guidance_title),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+            item {
+                Text(
+                    text = stringResource(R.string.onboarding_guidance_subtitle),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, start = 16.dp, end = 16.dp),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            item {
+                AuthorsCarousel(
+                    authors = interestsSelectionState.authors,
+                    onAuthorClick = onAuthorCheckedChanged,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+            }
+            item {
+                TopicSelection(
+                    interestsSelectionState,
+                    onTopicCheckedChanged,
+                    Modifier.padding(bottom = 8.dp)
+                )
+            }
+            item {
+                // Done button
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    NiaFilledButton(
+                        onClick = saveFollowedTopics,
+                        enabled = interestsSelectionState.canSaveInterests,
+                        modifier = Modifier
+                            .padding(horizontal = 40.dp)
+                            .width(364.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.done)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TopicSelection(
+    interestsSelectionState: ForYouInterestsSelectionUiState.WithInterestsSelection,
+    onTopicCheckedChanged: (String, Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) = trace("TopicSelection") {
+    val lazyGridState = rememberLazyGridState()
+    TrackScrollJank(scrollableState = lazyGridState, stateName = "forYou:TopicSelection")
+
+    LazyHorizontalGrid(
+        state = lazyGridState,
+        rows = GridCells.Fixed(3),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(24.dp),
+        modifier = modifier
+            // LazyHorizontalGrid has to be constrained in height.
+            // However, we can't set a fixed height because the horizontal grid contains
+            // vertical text that can be rescaled.
+            // When the fontScale is at most 1, we know that the horizontal grid will be at most
+            // 240dp tall, so this is an upper bound for when the font scale is at most 1.
+            // When the fontScale is greater than 1, the height required by the text inside the
+            // horizontal grid will increase by at most the same factor, so 240sp is a valid
+            // upper bound for how much space we need in that case.
+            // The maximum of these two bounds is therefore a valid upper bound in all cases.
+            .heightIn(max = max(240.dp, with(LocalDensity.current) { 240.sp.toDp() }))
+            .fillMaxWidth()
+    ) {
+        items(interestsSelectionState.topics) {
+            SingleTopicButton(
+                name = it.topic.name,
+                topicId = it.topic.id,
+                imageUrl = it.topic.imageUrl,
+                isSelected = it.isFollowed,
+                onClick = onTopicCheckedChanged
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SingleTopicButton(
+    name: String,
+    topicId: String,
+    imageUrl: String,
+    isSelected: Boolean,
+    onClick: (String, Boolean) -> Unit
+) = trace("SingleTopicButton") {
+    Surface(
+        modifier = Modifier
+            .width(312.dp)
+            .heightIn(min = 56.dp),
+        shape = RoundedCornerShape(corner = CornerSize(8.dp)),
+        color = MaterialTheme.colorScheme.surface,
+        selected = isSelected,
+        onClick = {
+            onClick(topicId, !isSelected)
+        }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 12.dp, end = 8.dp)
+        ) {
+            TopicIcon(
+                imageUrl = imageUrl
+            )
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .weight(1f),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            NiaToggleButton(
+                checked = isSelected,
+                onCheckedChange = { checked -> onClick(topicId, checked) },
+                icon = {
+                    Icon(
+                        imageVector = NiaIcons.Add,
+                        contentDescription = name
+                    )
+                },
+                checkedIcon = {
+                    Icon(
+                        imageVector = NiaIcons.Check,
+                        contentDescription = name
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun TopicIcon(
+    modifier: Modifier = Modifier,
+    imageUrl: String
+) {
+    AsyncImage(
+        // TODO b/228077205, show loading image visual instead of static placeholder
+        placeholder = painterResource(R.drawable.ic_icon_placeholder),
+        model = imageUrl,
+        contentDescription = null, // decorative
+        modifier = modifier
+            .padding(10.dp)
+            .size(32.dp)
+    )
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(name = "phone", device = "spec:shape=Normal,width=360,height=640,unit=dp,dpi=480")
+@Preview(name = "landscape", device = "spec:shape=Normal,width=640,height=360,unit=dp,dpi=480")
+@Preview(name = "foldable", device = "spec:shape=Normal,width=673,height=841,unit=dp,dpi=480")
+@Preview(name = "tablet", device = "spec:shape=Normal,width=1280,height=800,unit=dp,dpi=480")
+@Composable
+fun ForYouScreenPopulatedFeed() {
+    BoxWithConstraints {
+        NiaTheme {
+            ForYouScreen(
+                windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight)),
+                interestsSelectionState = ForYouInterestsSelectionUiState.NoInterestsSelection,
+                feedState = NewsFeedUiState.Success(
+                    feed = previewNewsResources.map {
+                        SaveableNewsResource(it, false)
+                    }
+                ),
+                onTopicCheckedChanged = { _, _ -> },
+                onAuthorCheckedChanged = { _, _ -> },
+                saveFollowedTopics = {},
+                onNewsResourcesCheckedChanged = { _, _ -> }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(name = "phone", device = "spec:shape=Normal,width=360,height=640,unit=dp,dpi=480")
+@Preview(name = "landscape", device = "spec:shape=Normal,width=640,height=360,unit=dp,dpi=480")
+@Preview(name = "foldable", device = "spec:shape=Normal,width=673,height=841,unit=dp,dpi=480")
+@Preview(name = "tablet", device = "spec:shape=Normal,width=1280,height=800,unit=dp,dpi=480")
+@Composable
+fun ForYouScreenTopicSelection() {
+    BoxWithConstraints {
+        NiaTheme {
+            ForYouScreen(
+                windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight)),
+                interestsSelectionState = ForYouInterestsSelectionUiState.WithInterestsSelection(
+                    topics = previewTopics.map { FollowableTopic(it, false) },
+                    authors = previewAuthors.map { FollowableAuthor(it, false) }
+                ),
+                feedState = NewsFeedUiState.Success(
+                    feed = previewNewsResources.map {
+                        SaveableNewsResource(it, false)
+                    }
+                ),
+                onAuthorCheckedChanged = { _, _ -> },
+                onTopicCheckedChanged = { _, _ -> },
+                saveFollowedTopics = {},
+                onNewsResourcesCheckedChanged = { _, _ -> }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(name = "phone", device = "spec:shape=Normal,width=360,height=640,unit=dp,dpi=480")
+@Preview(name = "landscape", device = "spec:shape=Normal,width=640,height=360,unit=dp,dpi=480")
+@Preview(name = "foldable", device = "spec:shape=Normal,width=673,height=841,unit=dp,dpi=480")
+@Preview(name = "tablet", device = "spec:shape=Normal,width=1280,height=800,unit=dp,dpi=480")
+@Composable
+fun ForYouScreenLoading() {
+    BoxWithConstraints {
+        NiaTheme {
+            ForYouScreen(
+                windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(maxWidth, maxHeight)),
+                interestsSelectionState = ForYouInterestsSelectionUiState.Loading,
+                feedState = NewsFeedUiState.Loading,
+                onTopicCheckedChanged = { _, _ -> },
+                onAuthorCheckedChanged = { _, _ -> },
+                saveFollowedTopics = {},
+                onNewsResourcesCheckedChanged = { _, _ -> }
+            )
+        }
+    }
+}*/
